@@ -28,7 +28,7 @@ ADD cfg/hadoop/hdfs-site.xml $HADOOP_INSTALL/etc/hadoop/hdfs-site.xml
 ADD cfg/hadoop/core-site.xml $HADOOP_INSTALL/etc/hadoop/core-site.xml 
 ADD cfg/hadoop/mapred-site.xml $HADOOP_INSTALL/etc/hadoop/mapred-site.xml 
 ADD cfg/hadoop/yarn-site.xml $HADOOP_INSTALL/etc/hadoop/yarn-site.xml 
-ADD cfg/hadoop/slaves $HADOOP_INSTALL/etc/hadoop/slaves 
+# ADD cfg/hadoop/slaves $HADOOP_INSTALL/etc/hadoop/slaves 
 
 RUN chown -R hduser:hadoop /home/hduser/hdfs/namenode
 RUN chown -R hduser:hadoop /home/hduser/hdfs/datanode
@@ -47,12 +47,12 @@ ADD cfg/zookeeper/zookeeper-env.sh $ZOOKEEPER_HOME/zookeeper/conf/zookeeper-env.
 
 ADD cfg/accumulo/${ACCUMULO_VERSION}/* $ACCUMULO_HOME/conf/
 ADD cfg/hadoop/masters $ACCUMULO_HOME/conf/masters
-ADD cfg/hadoop/slaves $ACCUMULO_HOME/conf/slaves
+# ADD cfg/hadoop/slaves $ACCUMULO_HOME/conf/slaves
 
 RUN rm -f $SPARK_HOME/conf/*
 ADD cfg/spark/* $SPARK_HOME/conf/
 ADD cfg/hadoop/masters $SPARK_HOME/conf/masters
-ADD cfg/hadoop/slaves $SPARK_HOME/conf/slaves
+# ADD cfg/hadoop/slaves $SPARK_HOME/conf/slaves
 
 # SSH and SERF ports
 EXPOSE 22 7373 7946 
