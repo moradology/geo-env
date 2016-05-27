@@ -14,8 +14,8 @@ services:
         build: ./zookeeper
         image: daunnc/geodocker-zookeeper:latest
         depends_on: 
-          - geodocker-ubuntu-pbase
-          # - geodocker-centos-pbase 
+          # - geodocker-ubuntu-pbase
+          - geodocker-centos-pbase 
           # choose one of images (centos / ubuntu)
     geodocker-hadoop-base:
         build: ./hadoop/base

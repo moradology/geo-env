@@ -1,19 +1,19 @@
 version: '2'
-services:    
+services:
     geodocker-zookeeper:
         image: daunnc/geodocker-zookeeper:latest
         # volumes:
         #   - '/data/gt/hdfs:/data/hdfs'
     geodocker-hadoop-name:
-        image: daunnc/geodocker-hadoop-name:latest        
+        image: daunnc/geodocker-hadoop-name:latest
         environment:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         ports:
           - 50070:50070
         # volumes:
         #   - '/data/gt/hdfs:/data/hdfs'
-        depends_on: 
-          - geodocker-zookeeper        
+        depends_on:
+          - geodocker-zookeeper
     geodocker-hadoop-sname:
         image: daunnc/geodocker-hadoop-sname:latest
         entrypoint: /sbin/entrypoint-dev.sh
@@ -22,7 +22,7 @@ services:
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
         # volumes:
         #  - '/data/gt/hdfs:/data/hdfs'
-        depends_on:           
+        depends_on:
           - geodocker-hadoop-name
     geodocker-hadoop-data:
         image: daunnc/geodocker-hadoop-data:latest
@@ -44,7 +44,7 @@ services:
           ACCUMULO_SECRET: secret
           ACCUMULO_PASSWORD: GisPwd
           INSTANCE_NAME: gis
-        depends_on: 
+        depends_on:
           - geodocker-hadoop-data
     geodocker-accumulo-gc:
         image: daunnc/geodocker-accumulo-gc:latest
@@ -55,7 +55,7 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: secret
           ACCUMULO_PASSWORD: GisPwd
-        depends_on: 
+        depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-monitor:
         image: daunnc/geodocker-accumulo-monitor:latest
@@ -68,7 +68,7 @@ services:
           ACCUMULO_PASSWORD: GisPwd
         ports:
           - 50095:50095
-        depends_on: 
+        depends_on:
           - geodocker-accumulo-master
     geodocker-accumulo-tracer:
         image: daunnc/geodocker-accumulo-tracer:latest
@@ -79,9 +79,9 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: secret
           ACCUMULO_PASSWORD: GisPwd
-        depends_on: 
+        depends_on:
           - geodocker-accumulo-master
-    geodocker-accumulo-tserver:
+    geodocker-accumulo-tserver-1:
         image: daunnc/geodocker-accumulo-tserver:latest
         entrypoint: /sbin/entrypoint-dev.sh
         command: accumulo tserver
@@ -90,7 +90,21 @@ services:
           ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
           ACCUMULO_SECRET: secret
           ACCUMULO_PASSWORD: GisPwd
-        depends_on: 
+        depends_on:
+          - geodocker-accumulo-master
+          - geodocker-accumulo-gc
+          - geodocker-accumulo-monitor
+          - geodocker-accumulo-tracer
+    geodocker-accumulo-tserver-2:
+        image: daunnc/geodocker-accumulo-tserver:latest
+        entrypoint: /sbin/entrypoint-dev.sh
+        command: accumulo tserver
+        environment:
+          HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
+          ACCUMULO_ZOOKEEPERS: geodocker-zookeeper
+          ACCUMULO_SECRET: secret
+          ACCUMULO_PASSWORD: GisPwd
+        depends_on:
           - geodocker-accumulo-master
           - geodocker-accumulo-gc
           - geodocker-accumulo-monitor
@@ -98,28 +112,28 @@ services:
     geodocker-spark-master:
         image: daunnc/geodocker-spark-master:latest
         command: spark-class org.apache.spark.deploy.master.Master -h geodocker-spark-master
-        hostname: geodocker-spark-master         
+        hostname: geodocker-spark-master
         environment:
           SPARK_DAEMON_MEMORY: 2g
           SPARK_SUBMIT_DRIVER_MEMORY: 1g
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
           MASTER: spark://geodocker-spark-master:7077
-        ports:                    
+        ports:
           - 8080:8080
         # volumes:
         #  - '/data/gt/spark:/data/spark'
-        depends_on: 
+        depends_on:
           - geodocker-hadoop-data
     geodocker-spark-worker:
         image: daunnc/geodocker-spark-worker:latest
         command: spark-class org.apache.spark.deploy.worker.Worker spark://geodocker-spark-master:7077
         hostname: geodocker-spark-worker
-        environment: 
+        environment:
           SPARK_DAEMON_MEMORY: 2g
           SPARK_SUBMIT_DRIVER_MEMORY: 1g
           SPARK_WORKER_CORES: 8
           SPARK_WORKER_MEMORY: 16g
           HADOOP_MASTER_ADDRESS: geodocker-hadoop-name
-          SPARK_MASTER: geodocker-spark-master        
-        depends_on: 
+          SPARK_MASTER: geodocker-spark-master
+        depends_on:
           - geodocker-spark-master
